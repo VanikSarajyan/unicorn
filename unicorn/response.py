@@ -1,15 +1,5 @@
-from urllib import parse
 from wsgiref.headers import Headers
 from http.client import responses
-
-
-class Request:
-    def __init__(self, env) -> None:
-        self.env = env
-
-    @property
-    def args(self) -> dict:
-        return {k: v[0] for k, v in parse.parse_qs(self.env["QUERY_STRING"]).items()}
 
 
 class Response:
@@ -34,19 +24,3 @@ class Response:
                 yield k
             else:
                 yield k.encode(self.charset)
-
-
-def unicorn(function):
-    def application(env, start_response):
-        request = Request(env)
-        response = function(request)
-        start_response(response.status, response.headers.items())
-        return response
-
-    return application
-
-
-@unicorn
-def app(request: Request) -> Response:
-    name = request.args.get("name", "PyCon")
-    return Response([f"<h1>Hello, {name}</h1>"])
